@@ -85,6 +85,44 @@ bool removeAUserFromTheDB(){
     dataBase.close();
     return true;
 }
+bool isNumber(const string& str){
+    for(char const &c : str){
+        if(std::isdigit(c) == 0){
+            return false;
+        }
+    }
+    return true;
+}
+int numbersOfEmailOfAPerson(){
+    string titleOfTheUserFile = longgedUser + ".txt";
+    fstream userRead;
+    userRead.open(titleOfTheUserFile, fstream::in | fstream::app);
+    int counter = 1;
+    string line;
+    while(getline(userRead, line)){
+        counter++;
+    }
+    userRead.close();
+
+    return counter;
+}
+
+bool checkIfTheUserHasAnEmailWithNumber(string input){
+    if(!isNumber(input)){
+        return false;
+    }
+    int number = stoi(input);
+    cout << "input: " << number;
+
+    int numberOfEmails = numbersOfEmailOfAPerson();
+    cout << "number of persons email: " << numberOfEmails;
+
+    if(number < numberOfEmails){
+        return true;
+    }else{
+        return false;
+    }
+}
 
 bool registeer(){
     hash <string> hash;
@@ -187,8 +225,33 @@ bool logOut(){
     cout << "You logged out successfully!" << endl;
     return true;
 }
+void readAnEmail(){
+    fstream dataBase;
 
-bool sendAnEmail(){
+    string number;
+    cout << "Enter email number: ";
+    getline(cin, number);
+
+    string emailTitle = longgedUser + "-" + number + ".txt";
+
+    if(checkIfTheUserHasAnEmailWithNumber(number)){
+        dataBase.open(emailTitle, fstream::in | fstream::app);
+
+        string from, subject, content;
+        getline(dataBase, from);
+        getline(dataBase, subject);
+        getline(dataBase, content);
+
+        cout << "From: " << from;
+        cout << "Subject: " << subject;
+        cout << "Content: " << content;
+    }else{
+        cout << "Invalid email number!";
+    }
+}
+
+
+void sendAnEmail(){
     string receiverName, subject, content;
 
     cout << "Enter the receiver's username: ";
@@ -203,7 +266,8 @@ bool sendAnEmail(){
         string titleOfTheUserFile = receiverName + ".txt";
         fstream userRead;
         userRead.open(titleOfTheUserFile, fstream::in | fstream::app);
-        int counter = 0;
+        //Counter must start from zero D: not from 1;
+        int counter = 1;
         string line;
         while(getline(userRead, line)){
             counter++;
@@ -211,7 +275,7 @@ bool sendAnEmail(){
         userRead.close();
 
 
-        string titleOfTheMail = to_string(counter) + ".txt";
+        string titleOfTheMail = receiverName + "-" + to_string(counter) + ".txt";
         fstream mail;
         mail.open(titleOfTheMail, fstream::in | fstream::app);
         mail.close();
@@ -227,10 +291,8 @@ bool sendAnEmail(){
         userChange.close();
 
         cout << "Mail send to " << receiverName << endl;
-        return true;
     }else{
         cout << "This person doesnt exist!" << endl;
-        return false;
     }
 }
 
@@ -248,6 +310,9 @@ int main()
             if(stay){
                 cout << "-------------------------" << endl;
                 cout << "Welcome to Home Screen :)" << endl;
+                cout << "R - register" << endl;
+                cout << "L - login" << endl;
+                cout << "Q - quit" << endl;
             }
             cout << "Enter a command: ";
             string command;
@@ -284,8 +349,10 @@ int main()
                 areUOnTheHomePage = closeAccount();
             }else if(command == "l" || command == "L"){
                 areUOnTheHomePage = logOut();
+            }else if(command == "o" || command == "O"){
+                readAnEmail();
             }else if(command == "s" || command == "S"){
-                areUOnTheHomePage = sendAnEmail();
+                sendAnEmail();
             }
 
             stay = true;
