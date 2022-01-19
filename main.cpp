@@ -26,10 +26,10 @@ bool checkIfTheNameAlreadyExist(string name){
     string line;
     while(getline(dataBase, line)){
         if(name == getNameWithLineInput(line, ':')){
-            return false;
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 string getHashedPassword(string name){
@@ -102,7 +102,7 @@ bool registeer(){
 
     if(regex_match(name, nameRegex)
        && regex_match(password, passwordRegex)
-       && checkIfTheNameAlreadyExist(name)){
+       && !checkIfTheNameAlreadyExist(name)){
 
         dataBase.open("user.txt", fstream::out | fstream::app);
         dataBase << name << ":" << hash(password) << "\n";
@@ -113,7 +113,7 @@ bool registeer(){
         dataBase.close();
         cout << "Register successfully!" << endl;
         return true;
-    }else if(!checkIfTheNameAlreadyExist(name)){
+    }else if(checkIfTheNameAlreadyExist(name)){
         cout << "User already exist!" << endl;
         return false;
     }else if(!regex_match(name, nameRegex)){
@@ -140,12 +140,12 @@ bool login(){
     longgedUser = name;
 
     dataBase.open("user.txt", fstream::in | fstream::app);
-    if(!checkIfTheNameAlreadyExist(name)
+    if(checkIfTheNameAlreadyExist(name)
         && checkIfPasswordIsCorrect(name ,password)){
         cout << "Login successfully!" << endl;
         return true;
 
-    }else if(checkIfTheNameAlreadyExist(name)){
+    }else if(!checkIfTheNameAlreadyExist(name)){
         cout << "This user doesnt exist!" << endl;
         return false;
     }else if(!checkIfPasswordIsCorrect(name ,password)){
@@ -179,6 +179,57 @@ bool closeAccount(){
         return false;
     }else{
         cout << "Incorrect action!" << endl;
+        return false;
+    }
+}
+bool logOut(){
+    longgedUser = "";
+    cout << "You logged out successfully!" << endl;
+    return true;
+}
+
+bool sendAnEmail(){
+    string receiverName, subject, content;
+
+    cout << "Enter the receiver's username: ";
+    getline(cin, receiverName);
+    cout << "Enter the subject: ";
+    getline(cin, subject);
+    cout << "Enter the content: ";
+    getline(cin, content);
+
+    if(checkIfTheNameAlreadyExist(receiverName)){
+
+        string titleOfTheUserFile = receiverName + ".txt";
+        fstream userRead;
+        userRead.open(titleOfTheUserFile, fstream::in | fstream::app);
+        int counter = 0;
+        string line;
+        while(getline(userRead, line)){
+            counter++;
+        }
+        userRead.close();
+
+
+        string titleOfTheMail = to_string(counter) + ".txt";
+        fstream mail;
+        mail.open(titleOfTheMail, fstream::in | fstream::app);
+        mail.close();
+        mail.open(titleOfTheMail, fstream::out | fstream::app);
+        mail << longgedUser << "\n";
+        mail << subject << "\n";
+        mail << content << "\n";
+        mail.close();
+
+        fstream userChange;
+        userChange.open(titleOfTheUserFile, fstream::out | fstream::app);
+        userChange << counter << " " << subject << "\n";
+        userChange.close();
+
+        cout << "Mail send to " << receiverName << endl;
+        return true;
+    }else{
+        cout << "This person doesnt exist!" << endl;
         return false;
     }
 }
@@ -231,6 +282,10 @@ int main()
 
             if(command == "c" || command == "C"){
                 areUOnTheHomePage = closeAccount();
+            }else if(command == "l" || command == "L"){
+                areUOnTheHomePage = logOut();
+            }else if(command == "s" || command == "S"){
+                areUOnTheHomePage = sendAnEmail();
             }
 
             stay = true;
