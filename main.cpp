@@ -83,6 +83,7 @@ bool removeAUserFromTheDB(){
         dataBase << dbSave[i] << "\n";
     }
     dataBase.close();
+    longgedUser = "";
     return true;
 }
 bool isNumber(const string& str){
@@ -112,12 +113,10 @@ bool checkIfTheUserHasAnEmailWithNumber(string input){
         return false;
     }
     int number = stoi(input);
-    cout << "input: " << number;
 
     int numberOfEmails = numbersOfEmailOfAPerson();
-    cout << "number of persons email: " << numberOfEmails;
 
-    if(number < numberOfEmails){
+    if(number < numberOfEmails && number > 0 ){
         return true;
     }else{
         return false;
@@ -220,6 +219,22 @@ bool closeAccount(){
         return false;
     }
 }
+void myInbox(){
+    int emailsTotal = numbersOfEmailOfAPerson();
+    if(emailsTotal <= 1){
+        cout << "You have no emails :(" << endl;
+    }else{
+        fstream user;
+        string title = longgedUser + ".txt";
+        user.open(title, fstream::in | fstream::app);
+
+        string line;
+        while(getline(user, line)){
+            cout << line << endl;
+        }
+    }
+}
+
 bool logOut(){
     longgedUser = "";
     cout << "You logged out successfully!" << endl;
@@ -242,11 +257,11 @@ void readAnEmail(){
         getline(dataBase, subject);
         getline(dataBase, content);
 
-        cout << "From: " << from;
-        cout << "Subject: " << subject;
-        cout << "Content: " << content;
+        cout << "From: " << from << endl;
+        cout << "Subject: " << subject << endl ;
+        cout << "Content: " << content << endl;
     }else{
-        cout << "Invalid email number!";
+        cout << "Invalid email number!" << endl;
     }
 }
 
@@ -347,6 +362,8 @@ int main()
 
             if(command == "c" || command == "C"){
                 areUOnTheHomePage = closeAccount();
+            }else if(command == "i" || command == "I"){
+                myInbox();
             }else if(command == "l" || command == "L"){
                 areUOnTheHomePage = logOut();
             }else if(command == "o" || command == "O"){
