@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1642593950 source:d:\c++\mailsup\emails\main.cpp
+	<iostream>
+	<fstream>
+	<regex>
+	<stdio.h>
+	<string.h>
+
