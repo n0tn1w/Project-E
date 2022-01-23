@@ -1,3 +1,20 @@
+/**
+*
+* Solution to course project # 3
+* Introduction to programming course
+* Faculty of Mathematics and Informatics of Sofia University
+* Winter semester 2021/2022
+*
+* @author Daniel Manchevski
+* @idnumber 2MI0600094
+* @compiler GCC
+*
+*
+*
+*/
+
+
+
 #include <iostream>
 #include <fstream>
 #include <regex>
@@ -266,7 +283,7 @@ void readAnEmail(){
 }
 
 
-void sendAnEmail(){
+bool sendAnEmail(){
     string receiverName, subject, content;
 
     cout << "Enter the receiver's username: ";
@@ -277,7 +294,14 @@ void sendAnEmail(){
     getline(cin, content);
 
     if(checkIfTheNameAlreadyExist(receiverName)){
-
+        if(subject == ""){
+            cout << "This mail has no subject!" << endl;
+            return false;
+        }
+        if(content == ""){
+            cout << "This mail has no content!" << endl;
+            return false;
+        }
         string titleOfTheUserFile = receiverName + ".txt";
         fstream userRead;
         userRead.open(titleOfTheUserFile, fstream::in | fstream::app);
@@ -306,8 +330,10 @@ void sendAnEmail(){
         userChange.close();
 
         cout << "Mail send to " << receiverName << endl;
+        return true;
     }else{
         cout << "This person doesnt exist!" << endl;
+        return false;
     }
 }
 
@@ -370,6 +396,8 @@ int main()
                 readAnEmail();
             }else if(command == "s" || command == "S"){
                 sendAnEmail();
+            }else{
+                cout << "Invalid command!" << endl;
             }
 
             stay = true;
