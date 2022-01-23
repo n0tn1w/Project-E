@@ -49,6 +49,20 @@ bool checkIfTheNameAlreadyExist(string name){
     return false;
 }
 
+int numbersOfEmailOfAPerson(){
+    string titleOfTheUserFile = longgedUser + ".txt";
+    fstream userRead;
+    userRead.open(titleOfTheUserFile, fstream::in | fstream::app);
+    int counter = 1;
+    string line;
+    while(getline(userRead, line)){
+        counter++;
+    }
+    userRead.close();
+
+    return counter;
+}
+
 string getHashedPassword(string name){
     fstream dataBase;
     dataBase.open("user.txt", fstream::in | fstream::app);
@@ -77,21 +91,29 @@ bool checkIfPasswordIsCorrect(string name ,string passwordGuess){
     string passwordRealHash = getHashedPassword(name);
     return passwordRealHash == passwordGuessHashString;
 }
+void removeAllEmailFromPerson(string user){
+    string fileName = longgedUser + ".txt";
+    int counter = numbersOfEmailOfAPerson();
 
-bool removeAUserFromTheDB(){
+    for(int i = 1; i <= counter; i++){
+        string fileName = longgedUser + "-" + to_string(i) + ".txt";
+        std::remove(fileName.c_str());
+    }
+
+}
+
+
+bool removeAUserAndHisEmailsFromTheDB(){
     fstream dataBase;
     dataBase.open("user.txt", fstream::in | fstream::app);
     vector<string> dbSave;
     string line;
 
     while(getline(dataBase, line)){
-            cout << "Name: " <<getNameWithLineInput(line, ':') << " ";
         if(longgedUser == getNameWithLineInput(line, ':')){
-            cout << "removed" << line << endl;
             continue;
         }else{
             dbSave.push_back(line);
-            cout << line << endl;
         }
     }
     dataBase.close();
@@ -100,6 +122,11 @@ bool removeAUserFromTheDB(){
         dataBase << dbSave[i] << "\n";
     }
     dataBase.close();
+
+    removeAllEmailFromPerson(longgedUser);
+
+    string fileName = longgedUser + ".txt";
+    std::remove(fileName.c_str());
     longgedUser = "";
     return true;
 }
@@ -110,19 +137,6 @@ bool isNumber(const string& str){
         }
     }
     return true;
-}
-int numbersOfEmailOfAPerson(){
-    string titleOfTheUserFile = longgedUser + ".txt";
-    fstream userRead;
-    userRead.open(titleOfTheUserFile, fstream::in | fstream::app);
-    int counter = 1;
-    string line;
-    while(getline(userRead, line)){
-        counter++;
-    }
-    userRead.close();
-
-    return counter;
 }
 
 bool checkIfTheUserHasAnEmailWithNumber(string input){
@@ -226,10 +240,11 @@ bool closeAccount(){
     getline(cin, password);
 
     if(checkIfPasswordIsCorrect(longgedUser ,password)){
-        if(removeAUserFromTheDB()){
-            string fileName = longgedUser + ".txt";
-            std::remove(fileName.c_str());
+        if(removeAUserAndHisEmailsFromTheDB()){
             cout << "Account deleted successfully!" << endl;
+            fstream authentication;
+            authentication.open("authentication.txt", fstream::out | fstream::trunc);
+            authentication.close();
             return true;
         }else{
             cout << "Error in the DataBase!" << endl;
