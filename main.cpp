@@ -166,6 +166,10 @@ bool registeer(){
         dataBase.open(fileName, fstream::app);
         dataBase.close();
         cout << "Register successfully!" << endl;
+        fstream authentication;
+        authentication.open("authentication.txt", fstream::out | fstream::app);
+        authentication << longgedUser << "\n";
+        authentication.close();
         return true;
     }else if(checkIfTheNameAlreadyExist(name)){
         cout << "User already exist!" << endl;
@@ -197,6 +201,10 @@ bool login(){
     if(checkIfTheNameAlreadyExist(name)
         && checkIfPasswordIsCorrect(name ,password)){
         cout << "Login successfully!" << endl;
+        fstream authentication;
+        authentication.open("authentication.txt", fstream::out | fstream::app);
+        authentication << longgedUser << "\n";
+        authentication.close();
         return true;
 
     }else if(!checkIfTheNameAlreadyExist(name)){
@@ -255,6 +263,9 @@ void myInbox(){
 bool logOut(){
     longgedUser = "";
     cout << "You logged out successfully!" << endl;
+    fstream authentication;
+    authentication.open("authentication.txt", fstream::out | fstream::trunc);
+    authentication.close();
     return true;
 }
 void readAnEmail(){
@@ -343,9 +354,21 @@ int main()
     dataBase.open("user.txt", fstream::in | fstream::app);
     dataBase.close();
 
+    fstream authentication;
+    authentication.open("authentication.txt", fstream::in | fstream::app);
+    string line;
     bool areUOnTheHomePage = true;
+    bool firstLoginWithAuthentication;
+    if(getline(authentication, line)){
+        longgedUser = line;
+        firstLoginWithAuthentication = true;
+        areUOnTheHomePage = false;
+    }else{
+        areUOnTheHomePage = true;
+    }
+    authentication.close();
+
     bool stay = true;
-    //!areUOnTheHomePage
     while(true){
         if(areUOnTheHomePage){
             if(stay){
@@ -371,7 +394,7 @@ int main()
             }
             stay = false;
         }else{
-            if(!stay){
+            if(!stay || firstLoginWithAuthentication){
                 cout << "-------------------------" << endl;
                 cout << "Welcome to Work Screen 8]" << endl;
                 cout << "Hello " << longgedUser << endl;
@@ -381,6 +404,7 @@ int main()
                 cout << "L - logout" << endl;
                 cout << "O - open" << endl;
                 cout << "S - send" << endl;
+                firstLoginWithAuthentication = false;
             }
             cout << "Enter a command: ";
             string command;
